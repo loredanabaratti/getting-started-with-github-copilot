@@ -14,21 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "";
 
       // Populate activities list
+      renderActivities(activities);
+
       Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
-
-        const spotsLeft = details.max_participants - details.participants.length;
-
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
-
-        activitiesList.appendChild(activityCard);
-
         // Add option to select dropdown
         const option = document.createElement("option");
         option.value = name;
@@ -39,6 +27,37 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
+  }
+
+  // Render activities to the page
+  function renderActivities(activities) {
+    const activitiesList = document.getElementById("activities-list");
+    activitiesList.innerHTML = "";
+
+    Object.entries(activities).forEach(([name, activity]) => {
+      const freeSpots = activity.max_participants - activity.participants.length;
+      const card = document.createElement("div");
+      card.className = "activity-card";
+
+      card.innerHTML = `
+        <h4>${name}</h4>
+        <p><strong>Description:</strong> ${activity.description}</p>
+        <p><strong>Schedule:</strong> ${activity.schedule}</p>
+        <p><strong>Availability:</strong> ${freeSpots} free spot${freeSpots === 1 ? "" : "s"}</p>
+        <div class="activity-participants">
+          <div class="activity-participants-title">Participants:</div>
+          <ul class="activity-participants-list">
+            ${
+              activity.participants.length > 0
+                ? activity.participants.map(email => `<li>${email}</li>`).join("")
+                : '<li style="color:#888;font-style:italic;">No participants yet</li>'
+            }
+          </ul>
+        </div>
+      `;
+
+      activitiesList.appendChild(card);
+    });
   }
 
   // Handle form submission
